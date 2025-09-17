@@ -5,6 +5,17 @@ const sequelize = require('./db');
 const port = 3001;
 const bodyParser = require('body-parser');
 const userRoutes = require("./routes/userRoutes");
+const cors = require("cors");
+
+app.use(cors({
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
+app.use(bodyParser.json());
+
+app.use("/api/users", userRoutes);
 
 async function initializeDatabase() {
   try {
@@ -13,35 +24,33 @@ async function initializeDatabase() {
 
     await db.sequelize.sync({ force: false });
     console.log('All models were synchronized successfully.');
-        app.listen(port, () => {
-        console.log(`Server running on http://localhost:${port}`)
-        });
+
+    app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`)
+    });
   } catch (error) {
-        console.error('Unable to connect to the database or sync models:', error);
+    console.error('Unable to connect to the database or sync models:', error);
   }
 }
 
 initializeDatabase();
 
-sequelize.authenticate()
- .then(async () => {
-    console.log('Database connected successfully');
+// sequelize.authenticate()
+//  .then(async () => {
+//     console.log('Database connected successfully');
 
-    await sequelize.sync({ alter: true });
+//     await sequelize.sync({ alter: true });
 
-    console.log('All models synchronized');
+//     console.log('All models synchronized');
 
-    app.listen(3001, () => {
-      console.log('Server running on http://localhost:3001');
-    });
-  })
-    .catch((err) => {
-    console.error('Unable to connect to the database:', err.message);
-  });
+//     app.listen(3001, () => {
+//       console.log('Server running on http://localhost:3001');
+//     });
+//   })
+//     .catch((err) => {
+//     console.error('Unable to connect to the database:', err.message);
+//   });
 
-app.use(bodyParser.json());
-
-app.use("/api/users", userRoutes);
 
 app.get('/', (req, res) => {
   const newLocal = `
@@ -69,11 +78,9 @@ app.get('/', (req, res) => {
         "lastName":"Doe",
         "email":"john@example.com",
         "gender":"Male",
-        "password":"yourpassword"}
+        "password":"yourpassword@123"}
       '
     </pre>
-
-
   `;
   res.send(newLocal);
 });

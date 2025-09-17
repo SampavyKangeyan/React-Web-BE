@@ -1,82 +1,3 @@
-// const bcrypt = require("bcrypt");
-// const jwt = require("jsonwebtoken");
-// const nodemailer = require("nodemailer");
-// const userRepository = require("../repository/userRepository");
-
-// const JWT_SECRET = "supersecretkey";
-
-// const registerUser = async (userData, callback) => {
-//     try {
-//         userRepository.findByEmail(userData.email, async (err, results) => {
-//             if (err) {
-//                 console.error('Error in findByEmail:', err);
-//                 return callback(err);
-//             }
-//             if (results) return callback("Email already registered");
-
-//             const hashedPassword = await bcrypt.hash(userData.password, 10);
-        
-//             const user = {
-//                 firstName: userData.firstName,
-//                 lastName: userData.lastName,
-//                 email: userData.email,
-//                 gender: userData.gender,
-//                 password: hashedPassword,
-//                 // confirmPassword: hashedPassword   
-//             };
-
-//             userRepository.createUser(user, (err, result) => {
-//                 if (err) {
-//                     console.error('Error in createUser:', err);
-//                     return callback(err);
-//                 }
-
-//                 let transporter = nodemailer.createTransport({
-//                     service: "gmail",
-//                     auth: {
-//                     user: "youremail@gmail.com",
-//                     pass: "your-16-char-app-password"
-//                     }
-//                 });
-
-//                 let mailOptions ={ 
-//                     from: "youremail@gmail.com",
-//                     to: user.email,
-//                     subject: "Registration successful... Welcome to our app",
-//                     text: `Hello ${user.firstName}, \n\nYour account has been successfully created. \n\nThanks for registering!`
-//                 };
-
-//                 transporter.sendMail(mailOptions, (error) => {
-//                     if (error) {
-//                         console.error('Error sending email:', error);
-//                         // Don't crash, just log and continue
-//                         return callback(null, { 
-//                             message: "User registered, but failed to send welcome email.",
-//                             userId: result.insertId,
-//                             emailError: error.message
-//                         });
-//                     }
-
-//                     callback(null, { 
-//                         message:"User registered successfully. Welcome email sent.",
-//                         userId: result.insertId
-//                     });
-//                 });
-//             });
-//         });
-//     }  catch (error) {
-//         console.error('Unexpected error in registerUser:', error);
-//         callback(error);
-//     }
-// };
-
-
-
-// module.exports ={
-//     registerUser,
-// }
-
-
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const userRepository = require("../repository/userRepository");
@@ -106,7 +27,10 @@ const registerUser = async (userData, callback) => {
       userRepository.createUser(user, async (err, newUser) => {
         if (err) {
           console.error("Error in createUser:", err);
-          return callback(err);
+          if (err.name === "SequelizeUniqueConstraintError") {
+            return callback("Email already exists");
+          }
+          return callback(err.message || "DB error in user creation");
         }
 
         try {

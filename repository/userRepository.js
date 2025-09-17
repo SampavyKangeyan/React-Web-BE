@@ -10,8 +10,8 @@ const createUser = async(user, callback) => {
 
 const findByEmail = async (email, callback) => {
     try {
-        const reult = await User.findOne({ where: {email}});
-        callback(null, reult);
+        const result = await User.findOne({ where: { email } });
+        callback(null, result);
     } catch (err) {
         callback(err);
     }
